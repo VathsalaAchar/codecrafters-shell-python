@@ -20,7 +20,6 @@ def get_arg_path(path, cmd):
 
 
 def main():
-    path = os.environ.get("PATH")
     while True:
         # Uncomment this block to pass the first stage
         sys.stdout.write("$ ")
@@ -30,38 +29,37 @@ def main():
             continue
         # split text to get command and arguments
         split_text = ip_text.split()
-        if len(split_text) == 1:
-            print(f"{ip_text}: command not found")
-            continue
-        # split into command and args
-        command = split_text[0]
-        command_len = len(command)
-        args = ip_text[command_len+1:]
-        # exit command
-        if command == "exit" and args == "0":
-            break
-        # echo command
-        elif command == "echo":
-            print(f"{args}")
-        # type command
-        elif command == "type":
-            valid_commands = ["exit", "echo", "type"]
-            if args in valid_commands:
-                print(f"{args} is a shell builtin")
-                continue
-            # if not a valid command, check for PATH environment variable
-            if not path:
-                print(f"{args}: not found")
-                continue
-            # if PATH is set, then look for the command in the directories
-            arg_path = get_arg_path(path, args)
-            if arg_path:
-                print(f"{args} is {arg_path}")
-            else:
-                print(f"{args}: not found")
-        # catch all
-        else:
-            print(f"{ip_text}: command not found")
+
+        match split_text:
+            # exit command
+            case ["exit"]:
+                print("If you want to exit try: exit 0")
+            case ["exit", "0"]:
+                break
+            # echo command
+            case ["echo", *args]:
+                print(*args)
+            case ["type", ("exit" | "echo" | "type") as builtin_cmd]:
+                print(f"{builtin_cmd} is a shell builtin")
+            case ["type", *args]:
+                args = " ".join(a.strip() for a in args)
+                # if not a valid command, check for PATH environment variable
+                path = os.environ.get("PATH")
+                if not path:
+                    print(f"{args}: not found")
+                    continue
+                # if PATH is set, then look for the command in the directories
+                arg_path = get_arg_path(path, args)
+                if arg_path:
+                    print(f"{args} is {arg_path}")
+                else:
+                    print(f"{args}: not found")
+            case [an_exe, arg]:
+                path = os.environ.get("PATH")
+                os.system(f"{an_exe} {arg}")
+            # catch all
+            case _:
+                print(f"{ip_text}: command not found")
 
 
 if __name__ == "__main__":
