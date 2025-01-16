@@ -49,6 +49,7 @@ def main():
                 args = " ".join(a.strip() for a in args)
                 path = os.environ.get("PATH")
                 # look for the command in $PATH
+                path = os.environ.get("PATH")
                 arg_path = get_arg_path(path, args)
                 if arg_path:
                     print(f"{args} is {arg_path}")
