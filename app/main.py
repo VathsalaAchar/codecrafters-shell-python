@@ -41,7 +41,7 @@ def main():
             case ["echo", *args]:
                 print(*args)
             # type command
-            case ["type", ("exit" | "echo" | "type" | "pwd") as builtin_cmd]:
+            case ["type", ("exit" | "echo" | "type" | "pwd" | "cd") as builtin_cmd]:
                 print(f"{builtin_cmd} is a shell builtin")
             case ["type", *args]:
                 args = " ".join(a.strip() for a in args)
