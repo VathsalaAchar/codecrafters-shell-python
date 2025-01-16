@@ -57,7 +57,7 @@ def main():
             # get present working directory
             case ["pwd"]:
                 print(os.getcwd())
-            # change directory - absolute path
+            # change directory - absolute and relative paths
             case ["cd", dir_path]:
                 try:
                     os.chdir(dir_path)
