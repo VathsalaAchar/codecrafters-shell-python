@@ -47,7 +47,6 @@ def main():
                 print(f"{cmd} is a shell builtin")
             case ["type", *args]:
                 args = " ".join(a.strip() for a in args)
-                path = os.environ.get("PATH")
                 # look for the command in $PATH
                 path = os.environ.get("PATH")
                 arg_path = get_arg_path(path, args)
@@ -58,6 +57,10 @@ def main():
             # get present working directory
             case ["pwd"]:
                 print(os.getcwd())
+            # change directory - user's home directory
+            case ["cd", "~"]:
+                home_dir = os.environ.get("HOME")  # finds home dir
+                os.chdir(home_dir)
             # change directory - absolute and relative paths
             case ["cd", dir_path]:
                 try:
