@@ -55,6 +55,12 @@ def main():
             # get present working directory
             case ["pwd"]:
                 print(os.getcwd())
+            # change directory - absolute path
+            case ["cd", dir_path]:
+                try:
+                    os.chdir(dir_path)
+                except FileNotFoundError:
+                    print(f"cd: {dir_path}: No such file or directory")
             # run an executable
             case [an_exe, *args]:
                 try:
