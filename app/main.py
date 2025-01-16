@@ -1,5 +1,6 @@
 import sys
 import os
+import subprocess
 from pathlib import Path
 
 
@@ -39,27 +40,27 @@ def main():
             # echo command
             case ["echo", *args]:
                 print(*args)
-            case ["type", ("exit" | "echo" | "type") as builtin_cmd]:
+            # type command
+            case ["type", ("exit" | "echo" | "type" | "pwd") as builtin_cmd]:
                 print(f"{builtin_cmd} is a shell builtin")
             case ["type", *args]:
                 args = " ".join(a.strip() for a in args)
-                # if not a valid command, check for PATH environment variable
                 path = os.environ.get("PATH")
-                if not path:
-                    print(f"{args}: not found")
-                    continue
-                # if PATH is set, then look for the command in the directories
+                # look for the command in $PATH
                 arg_path = get_arg_path(path, args)
                 if arg_path:
                     print(f"{args} is {arg_path}")
                 else:
                     print(f"{args}: not found")
-            case [an_exe, arg]:
-                path = os.environ.get("PATH")
-                os.system(f"{an_exe} {arg}")
-            # catch all
-            case _:
-                print(f"{ip_text}: command not found")
+            # get present working directory
+            case ["pwd"]:
+                print(os.getcwd())
+            # run an executable
+            case [an_exe, *args]:
+                try:
+                    subprocess.call([an_exe, *args])
+                except FileNotFoundError:
+                    print(f"{ip_text}: command not found")
 
 
 if __name__ == "__main__":
