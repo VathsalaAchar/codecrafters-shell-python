@@ -31,6 +31,8 @@ def main():
         # split text to get command and arguments
         split_text = ip_text.split()
 
+        builtin_commands = ["exit", "echo", "type", "pwd", "cd"]
+
         match split_text:
             # exit command
             case ["exit"]:
@@ -41,8 +43,8 @@ def main():
             case ["echo", *args]:
                 print(*args)
             # type command
-            case ["type", ("exit" | "echo" | "type" | "pwd" | "cd") as builtin_cmd]:
-                print(f"{builtin_cmd} is a shell builtin")
+            case ["type", cmd] if cmd in builtin_commands:
+                print(f"{cmd} is a shell builtin")
             case ["type", *args]:
                 args = " ".join(a.strip() for a in args)
                 path = os.environ.get("PATH")
