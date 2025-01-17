@@ -29,7 +29,12 @@ def main():
         if not ip_text:
             continue
         # split text to get command and arguments
-        split_text = ip_text.split()
+        if "'" in ip_text:
+            delim = "'"
+        else:
+            delim = None
+        split_text = [t for t in ip_text.split(delim)]
+        split_text[0] = split_text[0].strip() # clean up the first argument in the split to remove spaces
 
         builtin_commands = ["exit", "echo", "type", "pwd", "cd"]
 
@@ -41,7 +46,11 @@ def main():
                 break
             # echo command
             case ["echo", *args]:
-                print(*args)
+                if delim: # join with no space if there is a delimiter i.e., '
+                    joined_args = ''.join(a for a in args)
+                else:
+                    joined_args = ' '.join(a for a in args)
+                print(joined_args)
             # type command
             case ["type", cmd] if cmd in builtin_commands:
                 print(f"{cmd} is a shell builtin")
@@ -69,6 +78,7 @@ def main():
                     print(f"cd: {dir_path}: No such file or directory")
             # run an executable
             case [an_exe, *args]:
+                args = [a for a in args if a not in ['', ' ']] # gets rid of empty/space arguments to cmd
                 try:
                     subprocess.call([an_exe, *args])
                 except FileNotFoundError:
