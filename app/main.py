@@ -1,10 +1,11 @@
 import sys
 import os
 import subprocess
-from shlex import split
+import shlex
+from typing import Tuple, List
 
 
-def get_arg_path(path, cmd):
+def get_arg_path(path: str, cmd: str) -> str | None:
     '''
     Given the PATH environment variable contents and command to be looked for find the path and return
     '''
@@ -19,6 +20,34 @@ def get_arg_path(path, cmd):
     return None
 
 
+def split_cmd_args(user_input: str) -> List[str | None]:
+    split_text = []
+    cmd_args = user_input.split(" ", maxsplit=1)
+    args_to_split = None
+    if len(cmd_args) > 1:
+        args_to_split = cmd_args[1:][0]
+    # add command to the return list
+    split_text.append(cmd_args[0])
+    # if there are no arguments append command with None and return
+    if not args_to_split:
+        split_text.append(None)
+        return split_text
+    # split arguments
+    if args_to_split.startswith("'"):
+        # remove single quotes
+        args_split_quotes = args_to_split.split("'")
+        args_to_split = [a for a in args_split_quotes if a != ""]
+    elif args_to_split.startswith('"'):
+        # remove double quotes
+        args_split_quotes = args_to_split.split('"')
+        args_to_split = [a for a in args_split_quotes if a not in [" ", ""]]
+    else:
+        args_to_split = args_to_split.split(" ")
+    split_text.extend(args_to_split)
+
+    return split_text
+
+
 def main():
     while True:
         # Uncomment this block to pass the first stage
@@ -27,8 +56,10 @@ def main():
         ip_text = input()
         if not ip_text:
             continue
+
         # split text to get command and arguments
-        split_text = split(ip_text)
+        # split_text = shlex.split(ip_text) # uses builtin method
+        split_text = split_cmd_args(ip_text)
 
         builtin_commands = ["exit", "echo", "type", "pwd", "cd"]
 
