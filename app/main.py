@@ -10,12 +10,11 @@ def get_arg_path(path, cmd):
     Given the PATH environment variable contents and command to be looked for find the path and return
     '''
     all_paths = path.split(":")
-    for p in all_paths:
-        path = Path(p)
+    for dir_path in all_paths:
+        poss_exe_path = os.path.join(dir_path, cmd)
         try:
-            for child in path.iterdir():
-                if cmd == str(child.stem):
-                    return str(child)
+            if os.stat(poss_exe_path):
+                return poss_exe_path
         except FileNotFoundError:
             continue
     return None
