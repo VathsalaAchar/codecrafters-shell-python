@@ -36,7 +36,18 @@ def split_cmd_args(user_input: str) -> List[str]:
     if args_to_split.startswith("'"):
         # remove single quotes
         args_split_quotes = args_to_split.split("'")
-        args_to_split = [a for a in args_split_quotes if a != ""]
+        if cmd == "echo":
+            ans = ""
+            for a in args_split_quotes:
+                if a == "":
+                    continue
+                elif a.strip() == "":
+                    ans += " "
+                else:
+                    ans += a
+            args_to_split = [ans]
+        else:
+            args_to_split = [a for a in args_split_quotes if a.strip() != ""]
     elif args_to_split.startswith('"'):
         # remove double quotes
         args_split_quotes = args_to_split.split('"')
