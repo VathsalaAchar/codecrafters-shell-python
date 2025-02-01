@@ -1,7 +1,7 @@
 import sys
 import os
 import subprocess
-import shlex
+import re
 from typing import Tuple, List
 
 
@@ -21,13 +21,14 @@ def get_arg_path(path: str, cmd: str) -> str | None:
 
 
 def split_cmd_args(user_input: str) -> List[str | None]:
-    split_text = []
     cmd_args = user_input.split(" ", maxsplit=1)
+    cmd = cmd_args[0]
+    # add command to the return list
+    split_text = []
+    split_text.append(cmd)
     args_to_split = None
     if len(cmd_args) > 1:
         args_to_split = cmd_args[1:][0]
-    # add command to the return list
-    split_text.append(cmd_args[0])
     # if there are no arguments append command with None and return
     if not args_to_split:
         split_text.append(None)
@@ -40,7 +41,31 @@ def split_cmd_args(user_input: str) -> List[str | None]:
     elif args_to_split.startswith('"'):
         # remove double quotes
         args_split_quotes = args_to_split.split('"')
-        args_to_split = [a for a in args_split_quotes if a not in [" ", ""]]
+        if cmd == "echo":
+            ans = ""
+            for a in args_split_quotes:
+                if a == "":
+                    continue
+                elif a.strip() == "":
+                    ans += " "
+                else:
+                    ans += a
+            args_to_split = [ans]
+        else:
+            args_to_split = [
+                a for a in args_split_quotes if a.strip() != ""]
+    elif "\\" in args_to_split:
+        re_backslash = re.compile(r"\\*(\w*\s*)")
+        args_split_backslash = re_backslash.split(args_to_split)
+        if cmd == "echo":
+            ans = ""
+            for a in args_split_backslash:
+                if a != "":
+                    ans += a
+            args_to_split = [ans]
+        else:
+            args_to_split = [
+                a for a in args_split_backslash if a.strip() != ""]
     else:
         args_to_split = args_to_split.split(" ")
     split_text.extend(args_to_split)
