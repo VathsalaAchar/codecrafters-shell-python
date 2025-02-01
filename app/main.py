@@ -20,8 +20,8 @@ def get_arg_path(path: str, cmd: str) -> str | None:
     return None
 
 
-def split_cmd_args(user_input: str) -> List[str | None]:
-    cmd_args = user_input.split(" ", maxsplit=1)
+def split_cmd_args(user_input: str) -> List[str]:
+    cmd_args = user_input.split(maxsplit=1)
     cmd = cmd_args[0]
     # add command to the return list
     split_text = []
@@ -31,7 +31,6 @@ def split_cmd_args(user_input: str) -> List[str | None]:
         args_to_split = cmd_args[1:][0]
     # if there are no arguments append command with None and return
     if not args_to_split:
-        split_text.append(None)
         return split_text
     # split arguments
     if args_to_split.startswith("'"):
@@ -67,7 +66,7 @@ def split_cmd_args(user_input: str) -> List[str | None]:
             args_to_split = [
                 a for a in args_split_backslash if a.strip() != ""]
     else:
-        args_to_split = args_to_split.split(" ")
+        args_to_split = args_to_split.split()
     split_text.extend(args_to_split)
 
     return split_text
