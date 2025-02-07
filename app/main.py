@@ -76,17 +76,18 @@ def split_cmd_args(user_input: str) -> List[str]:
 def double_quote_tokenising(all_args):
     to_escape = False
     ret_args = ''
+    dq_pair = True  # double quote pair set to True, will change parity when an unescaped double quote is seen
     end = None
     str_arg = all_args
-    # for the case where last two characters are ""
-    if repr(all_args[-2:]) == '\'""\'':
-        str_arg = all_args[:-1]
-        end = '\"'
     # for the case where last three characters are \\"
     if repr(all_args[-2:]) == '\'\\\\"\'' and repr(all_args[-3:]) == '\'\\\\\\\\"\'':
         str_arg = all_args[:-1]
         end = "\\"
+
+    # iterate  through each character
     for ch in str_arg:
+        if dq_pair and ch == ' ' and ret_args[-1] == ' ':
+            ch = ""
         if ch == '\\':
             to_escape = True
             continue
@@ -99,9 +100,13 @@ def double_quote_tokenising(all_args):
             to_escape = False
         else:
             if ch == '"':
+                # flag is True if a pair of double quotes is complete
+                # so this changes parity when an unescaped double quote is seen
+                dq_pair = not dq_pair
                 continue
             ret_args += ch
-    if end:
+
+    if end:  # to fit the case where the last characters have \\"
         ret_args = ret_args + end
     return [ret_args]
 
