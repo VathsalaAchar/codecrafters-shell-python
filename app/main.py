@@ -50,7 +50,7 @@ def split_cmd_args(user_input: str) -> List[str]:
             args_to_split = [a for a in args_split_quotes if a.strip() != ""]
     elif args_to_split.startswith('"'):
         if cmd == "echo":
-            args_to_split = double_quote_tokenising(args_to_split)
+            args_to_split = double_quote_parser(args_to_split)
         else:
             args_split_quotes = args_to_split.split('"')
             args_to_split = [a for a in args_split_quotes if a.strip() != ""]
@@ -73,7 +73,10 @@ def split_cmd_args(user_input: str) -> List[str]:
     return split_text
 
 
-def double_quote_tokenising(all_args):
+def double_quote_parser(all_args):
+    """
+    Parses echo arguments with double quotes 
+    """
     to_escape = False
     ret_args = ''
     dq_pair = True  # double quote pair set to True, will change parity when an unescaped double quote is seen
