@@ -2,7 +2,7 @@ import sys
 import os
 import subprocess
 import re
-from typing import Tuple, List
+from typing import List
 
 
 def get_arg_path(path: str, cmd: str) -> str | None:
@@ -49,21 +49,11 @@ def split_cmd_args(user_input: str) -> List[str]:
         else:
             args_to_split = [a for a in args_split_quotes if a.strip() != ""]
     elif args_to_split.startswith('"'):
-        # remove double quotes
-        args_split_quotes = args_to_split.split('"')
         if cmd == "echo":
-            ans = ""
-            for a in args_split_quotes:
-                if a == "":
-                    continue
-                elif a.strip() == "":
-                    ans += " "
-                else:
-                    ans += a
-            args_to_split = [ans]
+            args_to_split = double_quote_tokenising(args_to_split)
         else:
-            args_to_split = [
-                a for a in args_split_quotes if a.strip() != ""]
+            args_split_quotes = args_to_split.split('"')
+            args_to_split = [a for a in args_split_quotes if a.strip() != ""]
     elif "\\" in args_to_split:
         re_backslash = re.compile(r"\\*(\w*\s*)")
         args_split_backslash = re_backslash.split(args_to_split)
@@ -81,6 +71,39 @@ def split_cmd_args(user_input: str) -> List[str]:
     split_text.extend(args_to_split)
 
     return split_text
+
+
+def double_quote_tokenising(all_args):
+    to_escape = False
+    ret_args = ''
+    end = None
+    str_arg = all_args
+    # for the case where last two characters are ""
+    if repr(all_args[-2:]) == '\'""\'':
+        str_arg = all_args[:-1]
+        end = '\"'
+    # for the case where last three characters are \\"
+    if repr(all_args[-2:]) == '\'\\\\"\'' and repr(all_args[-3:]) == '\'\\\\\\\\"\'':
+        str_arg = all_args[:-1]
+        end = "\\"
+    for ch in str_arg:
+        if ch == '\\':
+            to_escape = True
+            continue
+        if to_escape:
+            if ch in ['$', '"', "\\"]:
+                ret_args += ch
+            else:
+                ret_args += "\\"
+                ret_args += ch
+            to_escape = False
+        else:
+            if ch == '"':
+                continue
+            ret_args += ch
+    if end:
+        ret_args = ret_args + end
+    return [ret_args]
 
 
 def main():
