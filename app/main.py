@@ -20,6 +20,47 @@ def get_arg_path(path: str, cmd: str) -> str | None:
     return None
 
 
+def double_quote_parser(all_args):
+    """
+    Parses echo arguments with double quotes 
+    """
+    to_escape = False
+    ret_args = ''
+    dq_pair = True  # double quote pair set to True, will change parity when an unescaped double quote is seen
+    end = None
+    str_arg = all_args
+    # for the case where last three characters are \\"
+    if repr(all_args[-2:]) == '\'\\\\"\'' and repr(all_args[-3:]) == '\'\\\\\\\\"\'':
+        str_arg = all_args[:-1]
+        end = "\\"
+
+    # iterate  through each character
+    for ch in str_arg:
+        if dq_pair and ch == ' ' and ret_args[-1] == ' ':
+            ch = ""
+        if ch == '\\':
+            to_escape = True
+            continue
+        if to_escape:
+            if ch in ['$', '"', "\\"]:
+                ret_args += ch
+            else:
+                ret_args += "\\"
+                ret_args += ch
+            to_escape = False
+        else:
+            if ch == '"':
+                # flag is True if a pair of double quotes is complete
+                # so this changes parity when an unescaped double quote is seen
+                dq_pair = not dq_pair
+                continue
+            ret_args += ch
+
+    if end:  # to fit the case where the last characters have \\"
+        ret_args = ret_args + end
+    return [ret_args]
+
+
 def split_cmd_args(user_input: str) -> List[str]:
     cmd_args = user_input.split(maxsplit=1)
     cmd = cmd_args[0]
@@ -73,47 +114,6 @@ def split_cmd_args(user_input: str) -> List[str]:
     return split_text
 
 
-def double_quote_parser(all_args):
-    """
-    Parses echo arguments with double quotes 
-    """
-    to_escape = False
-    ret_args = ''
-    dq_pair = True  # double quote pair set to True, will change parity when an unescaped double quote is seen
-    end = None
-    str_arg = all_args
-    # for the case where last three characters are \\"
-    if repr(all_args[-2:]) == '\'\\\\"\'' and repr(all_args[-3:]) == '\'\\\\\\\\"\'':
-        str_arg = all_args[:-1]
-        end = "\\"
-
-    # iterate  through each character
-    for ch in str_arg:
-        if dq_pair and ch == ' ' and ret_args[-1] == ' ':
-            ch = ""
-        if ch == '\\':
-            to_escape = True
-            continue
-        if to_escape:
-            if ch in ['$', '"', "\\"]:
-                ret_args += ch
-            else:
-                ret_args += "\\"
-                ret_args += ch
-            to_escape = False
-        else:
-            if ch == '"':
-                # flag is True if a pair of double quotes is complete
-                # so this changes parity when an unescaped double quote is seen
-                dq_pair = not dq_pair
-                continue
-            ret_args += ch
-
-    if end:  # to fit the case where the last characters have \\"
-        ret_args = ret_args + end
-    return [ret_args]
-
-
 def main():
     while True:
         # Uncomment this block to pass the first stage
@@ -165,6 +165,7 @@ def main():
                     print(f"cd: {dir_path}: No such file or directory")
             # run an executable
             case [an_exe, *args]:
+                print(an_exe)
                 try:
                     subprocess.call([an_exe, *args])
                 except FileNotFoundError:
