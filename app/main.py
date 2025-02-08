@@ -61,9 +61,33 @@ def double_quote_parser(all_args):
     return [ret_args]
 
 
+def single_quote_parser(single_quote_string):
+    result = ""
+    for s in single_quote_string:
+        if s == "":
+            continue
+        elif s.strip() == "":
+            result += " "
+        else:
+            result += s
+    return [result]
+
+
 def split_cmd_args(user_input: str) -> List[str]:
-    cmd_args = user_input.split(maxsplit=1)
-    cmd = cmd_args[0]
+    cmd_args = []
+    single_quote_str = "'"
+    double_quote_str = '"'
+    if user_input.startswith(double_quote_str):
+        exe_with_dq = user_input.split(double_quote_str)[1]
+        cmd_args = user_input.split(double_quote_str)[1:]
+        cmd = double_quote_parser(exe_with_dq)[0]
+    if user_input.startswith(single_quote_str):
+        exe_with_sq = user_input.split(single_quote_str)[1]
+        cmd_args = user_input.split(single_quote_str)[1:]
+        cmd = single_quote_parser(exe_with_sq)[0]
+    else:
+        cmd_args = user_input.split(maxsplit=1)
+        cmd = cmd_args[0]
     # add command to the return list
     split_text = []
     split_text.append(cmd)
@@ -78,15 +102,7 @@ def split_cmd_args(user_input: str) -> List[str]:
         # remove single quotes
         args_split_quotes = args_to_split.split("'")
         if cmd == "echo":
-            ans = ""
-            for a in args_split_quotes:
-                if a == "":
-                    continue
-                elif a.strip() == "":
-                    ans += " "
-                else:
-                    ans += a
-            args_to_split = [ans]
+            args_to_split = single_quote_parser(args_split_quotes)
         else:
             args_to_split = [a for a in args_split_quotes if a.strip() != ""]
     elif args_to_split.startswith('"'):
@@ -165,7 +181,6 @@ def main():
                     print(f"cd: {dir_path}: No such file or directory")
             # run an executable
             case [an_exe, *args]:
-                print(an_exe)
                 try:
                     subprocess.call([an_exe, *args])
                 except FileNotFoundError:
