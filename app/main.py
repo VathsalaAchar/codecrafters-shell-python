@@ -81,7 +81,7 @@ def split_cmd_args(user_input: str) -> List[str]:
         exe_with_dq = user_input.split(double_quote_str)[1]
         cmd_args = user_input.split(double_quote_str)[1:]
         cmd = double_quote_parser(exe_with_dq)[0]
-    if user_input.startswith(single_quote_str):
+    elif user_input.startswith(single_quote_str):
         exe_with_sq = user_input.split(single_quote_str)[1]
         cmd_args = user_input.split(single_quote_str)[1:]
         cmd = single_quote_parser(exe_with_sq)[0]
@@ -92,9 +92,10 @@ def split_cmd_args(user_input: str) -> List[str]:
     split_text = []
     split_text.append(cmd)
     args_to_split = None
+    # get the arguments that need splitting
     if len(cmd_args) > 1:
         args_to_split = cmd_args[1:][0]
-    # if there are no arguments append command with None and return
+    # if there are no arguments append command and return
     if not args_to_split:
         return split_text
     # split arguments
