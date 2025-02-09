@@ -8,6 +8,11 @@ interpreting shell commands, running external programs and builtin commands like
 cd, pwd, echo and more. I'm keen to learn about shell command parsing,
 REPLs, builtin commands, and more.
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+I've added the Navigation and Quoting extensions. I'll work on adding Redirection next.
+
+A lot of the features can be completed using `shlex` python library but I have 
+attempted without it. The code is more verbose, but my understanding of how a shell 
+parses commands has improved especially with quoting in the mix.
+
+**Note**: If you would like to try this challenge head over to [codecrafters.io](https://codecrafters.io)
 
